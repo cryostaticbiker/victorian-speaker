@@ -100,7 +100,7 @@ function rewritePlainText(text: string, mode: VictorianMode) {
 
   // Longer phrases are listed first so short words do not consume them.
   for (const [from, to] of REPLACEMENTS[mode]) {
-    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+")
+    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+")").replace(/ /g, "\\s+")
     const expression = new RegExp(`\\b${escaped}\\b`, "gi")
     result = result.replace(expression, match => preserveInitialCapital(match, to))
   }
