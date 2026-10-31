@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "cryostaticbiker.victorian-speaker",
+  "name": "Victorian Speaker",
+  "description": "Rewrites outgoing messages in one of three Victorian English styles.",
+  "author": "cryostaticbiker (https://github.com/cryostaticbiker \"GitHub\")",
+  "version": "0.1.0",
+  "dependencies": {
+    "revenge.api": {
+      "version": ">=1.2.1 <2"
+    },
+    "discord": {
+      "version": "*"
+    }
+  },
+  "dist": {
+    "script": "index.js"
+  }
+}
