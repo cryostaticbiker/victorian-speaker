@@ -1,0 +1,48 @@
+name: Build Victorian Speaker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build plugin bundle
+        run: bun run build victorian-speaker
+
+      - name: Package installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          plugin_dir="plugins/victorian-speaker"
+          plugin_id="$(node -p "require('./${plugin_dir}/manifest.json').id")"
+          version="$(node -p "require('./${plugin_dir}/manifest.json').version")"
+          stage="$RUNNER_TEMP/victorian-speaker"
+          mkdir -p "$stage"
+          cp "$plugin_dir/manifest.json" "$stage/manifest.json"
+          cp "$plugin_dir/build/js/index.js" "$stage/index.js"
+          mkdir -p dist
+          zip -j "dist/${plugin_id}@${version}.zip" "$stage/manifest.json" "$stage/index.js"
+          cp "dist/${plugin_id}@${version}.zip" dist/Victorian-Speaker-install.zip
+
+      - name: Upload installable plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: Victorian-Speaker-Android-Plugin
+          path: dist/Victorian-Speaker-install.zip
+          if-no-files-found: error
+          retention-days: 30
