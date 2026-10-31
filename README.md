@@ -8,7 +8,7 @@ A Revenge plugin that rewrites outgoing Discord messages into playful Victorian-
 - **Drawing Room** — moderate formality: “hello” becomes “I bid you good day”.
 - **Royal Decree** — deliberately extravagant: “please” becomes “I beseech thee”.
 
-Choose the active style from the three buttons added above the chat composer. The selected style is saved locally.
+Choose the active style using the three compact buttons added to the chat composer action row. The selected style is saved locally.
 
 ## Behaviour
 
@@ -18,40 +18,60 @@ Choose the active style from the three buttons added above the chat composer. Th
 - Does not edit the visible draft while typing.
 - Runs entirely on-device. No message text is sent to an external rewriting service.
 
-The first version uses a small local phrase dictionary, not a language model. This keeps it private and fast, but it will not perfectly rewrite arbitrary sentences.
+The first version uses a local phrase dictionary, not a language model. This keeps it private and fast, but it will not perfectly rewrite arbitrary sentences.
 
-## Build status
+## Build
 
-The source and manifest are committed, but this repository has **not yet been built or published as an installable plugin**. The runtime API and composer patch still need to be checked against the exact Revenge build being used.
-
-The code follows the modern Revenge plugin API style used in current community plugin examples. The older `@vendetta/plugin` examples in some repositories are useful for patterns, but are not interchangeable with the modern plugin API.
-
-## Local development
-
-Use the current Revenge plugin tooling for the installed app version. Once the build tooling is pinned and configured, the expected workflow will be:
+This repository uses the official Revenge plugin CLI.
 
 ```sh
 bun install
-bun run build
+bun run build victorian-speaker
 ```
 
-A TypeScript source file by itself is not an installable plugin. Revenge needs the built JavaScript bundle and a valid manifest.
+The JavaScript bundle is written to `plugins/victorian-speaker/build/js/index.js`. The GitHub Actions workflow packages that bundle with the manifest into an installable ZIP and publishes the ZIP plus a generated repository index to the `gh-pages` branch.
 
-## Publishing and installing
+## Install on Android
 
-To make this repository installable by URL, it needs a hosted plugin repository index and a built plugin artifact (or the specific distribution format supported by the Revenge version in use). The repository does not have that published index or artifact yet, so **do not add this GitHub repository URL to Revenge as though it were already an installable plugin source**.
+### Recommended: add the plugin repository
 
-Once distribution is configured, the usual flow is to add the hosted repository URL in Revenge's plugin/repository settings, browse to Victorian Speaker, install it, and enable it. That also gives the repository a path for future updates.
+After the first successful Pages deployment:
 
-## Compatibility note
+1. In GitHub, open **Settings → Pages**.
+2. Set the publishing source to **Deploy from a branch**.
+3. Select branch **gh-pages** and folder **/(root)**, then save.
+4. In Revenge, open **Settings → Revenge → Plugins**.
+5. Tap the settings gear and add this repository URL:
 
-The send-time rewrite and the chat-bar picker use internal Discord modules. Those module names and shapes can change between Discord releases. The composer picker currently targets `ChatInputGuardWrapper`; it must be tested on the target app version before release. The message interception is separate, so a composer UI change should not silently disable the rewrite itself.
+   `https://cryostaticbiker.github.io/victorian-speaker/index.json`
+
+6. Open **Browse Plugins**, find **Victorian Speaker**, install it, and enable it.
+
+The repository URL is the generated `index.json`, not the GitHub source-code URL.
+
+### Manual test install
+
+1. Open the [GitHub Actions builds](https://github.com/cryostaticbiker/victorian-speaker/actions).
+2. Open the latest successful **Build Victorian Speaker** run.
+3. Download the `Victorian-Speaker-Android-Plugin` artifact.
+4. Extract the downloaded artifact ZIP. It contains the actual plugin ZIP.
+5. In Revenge, open **Settings → Revenge → Plugins**, tap the settings gear, choose **Install from file**, and select the inner plugin ZIP.
+6. Enable Victorian Speaker.
+
+Manual ZIP installs do not receive automatic updates. Use the repository method for updates.
+
+## Compatibility and testing
+
+The plugin targets the current Revenge API and uses the current community pattern for the memoized `ChatInputRightActions` component. The send-time rewrite is separately hooked through the `sendMessage` action.
+
+A successful CI build confirms that the code bundles and packages. It does not prove that Discord's internal composer component is identical on every Android client version. Verify that the three mode buttons appear and that a test message is transformed before relying on it.
 
 ## Ideas for later versions
 
 - Preview the transformed message before sending.
-- Add a per-channel or per-server default style.
 - Add a custom phrase dictionary and user-defined substitutions.
-- Add a “preserve mentions and markdown” toggle.
-- Add a quick “rewrite this draft” button that updates the composer text.
-- Add a Regency, Shakespearean, or legalistic mode as optional extra styles.
+- Add per-server or per-channel default styles.
+- Add a one-tap enable/disable control.
+- Add a “rewrite this draft” button that updates the composer text.
+- Preserve mentions and markdown with dedicated parsing.
+- Add Regency, Shakespearean, or legalistic styles.
