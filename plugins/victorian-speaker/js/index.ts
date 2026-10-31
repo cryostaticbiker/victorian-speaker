@@ -153,9 +153,7 @@ export default plugin<{ jsonStorage: Settings }>({
         if (typeof module?.default !== "function") return
 
         cleanup(
-          after(module, "default", (_args, result) => {
-            return addPickerToElement(result)
-          }),
+          after(module, "default", result => addPickerToElement(result)),
         )
       }),
     )
