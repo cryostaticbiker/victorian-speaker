@@ -1,0 +1,26 @@
+{
+  "name": "victorian-speaker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "revenge-plugin build",
+    "build:dev": "revenge-plugin build --dev",
+    "generate-index": "revenge-plugin generate-index",
+    "serve": "revenge-plugin serve",
+    "lint": "biome check"
+  },
+  "dependencies": {
+    "@revenge-mod/plugin-cli": "git+https://github.com/revenge-mod/revenge-plugin-cli.git",
+    "@revenge-mod/types": "git+https://github.com/revenge-mod/revenge-types.git"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
+    "@types/react": "^19.2.18",
+    "react-native": "0.81.6",
+    "typescript": "^7.0.2"
+  },
+  "trustedDependencies": [
+    "@revenge-mod/plugin-cli",
+    "@swc/core"
+  ]
+}
