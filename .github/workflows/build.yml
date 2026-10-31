@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -38,6 +38,9 @@ jobs:
           mkdir -p dist
           zip -j "dist/${plugin_id}@${version}.zip" "$stage/manifest.json" "$stage/index.js"
           cp "dist/${plugin_id}@${version}.zip" dist/Victorian-Speaker-install.zip
+          mkdir -p public/pool
+          cp "dist/${plugin_id}@${version}.zip" "public/pool/${plugin_id}@${version}.zip"
+          bun run generate-index -- --dist public/pool --base-url "https://cryostaticbiker.github.io/victorian-speaker/pool" --out public/index.json
 
       - name: Upload installable plugin
         uses: actions/upload-artifact@v4
@@ -46,3 +49,11 @@ jobs:
           path: dist/Victorian-Speaker-install.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish plugin repository to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./public
+          force_orphan: true
