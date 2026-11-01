@@ -1,8 +1,9 @@
-name: Build Victorian Speaker
+name: Build Victorian Speaker for Valenced
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -51,6 +52,7 @@ jobs:
           retention-days: 30
 
       - name: Publish plugin repository to GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
