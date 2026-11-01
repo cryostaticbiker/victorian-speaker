@@ -17,10 +17,15 @@ import type {
 	ReactElement,
 	ReactNode,
 } from 'react'
-import { transformText, type VictorianMode } from './victorian'
+import {
+	transformText,
+	type VictorianIntensity,
+	type VictorianMode,
+} from './victorian'
 
 interface Settings {
 	mode: VictorianMode
+	intensity: VictorianIntensity
 }
 
 interface MessageActions {
@@ -38,55 +43,96 @@ const MODES: Array<{ id: VictorianMode; label: string; shortLabel: string }> = [
 	{ id: 'royal', label: 'Royal Decree', shortLabel: 'Royal' },
 ]
 
+const INTENSITIES: Array<{ id: VictorianIntensity; label: string }> = [
+	{ id: 'subtle', label: 'Subtle' },
+	{ id: 'balanced', label: 'Balanced' },
+	{ id: 'florid', label: 'Florid' },
+]
+
 let activeMode: VictorianMode = 'drawing-room'
-let persistMode: ((mode: VictorianMode) => void) | undefined
+let activeIntensity: VictorianIntensity = 'balanced'
+let persistSettings: ((settings: Partial<Settings>) => void) | undefined
 
 function ModePicker() {
-	const [selected, setSelected] = useState<VictorianMode>(activeMode)
+	const [selectedMode, setSelectedMode] = useState<VictorianMode>(activeMode)
+	const [selectedIntensity, setSelectedIntensity] =
+		useState<VictorianIntensity>(activeIntensity)
+
+	const option = (
+		id: string,
+		label: string,
+		selected: boolean,
+		onPress: () => void,
+	) =>
+		createElement(
+			Pressable,
+			{
+				key: id,
+				onPress,
+				style: {
+					backgroundColor: selected ? '#5865f2' : '#34363c',
+					borderRadius: 10,
+					paddingHorizontal: 8,
+					paddingVertical: 5,
+				},
+				accessibilityRole: 'button',
+				accessibilityLabel: label,
+				accessibilityState: { selected },
+			},
+			createElement(
+				Text,
+				{
+					style: {
+						color: '#ffffff',
+						fontSize: 11,
+						fontWeight: selected ? '700' : '500',
+					},
+				},
+				label,
+			),
+		)
 
 	return createElement(
 		View,
 		{
 			style: {
-				flexDirection: 'row',
-				alignItems: 'center',
-				flexWrap: 'wrap',
+				flexDirection: 'column',
+				alignItems: 'flex-start',
 				paddingHorizontal: 4,
 				paddingVertical: 3,
-				gap: 4,
+				gap: 5,
 			},
-			accessibilityLabel: 'Victorian Speaker style selector',
+			accessibilityLabel: 'Victorian Speaker controls',
 		},
-		...MODES.map(mode =>
+		createElement(
+			View,
+			{ style: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 } },
+			...MODES.map(mode =>
+				option(mode.id, mode.shortLabel, selectedMode === mode.id, () => {
+					activeMode = mode.id
+					setSelectedMode(mode.id)
+					persistSettings?.({ mode: mode.id })
+				}),
+			),
+		),
+		createElement(
+			View,
+			{ style: { flexDirection: 'row', alignItems: 'center', gap: 4 } },
 			createElement(
-				Pressable,
-				{
-					key: mode.id,
-					onPress: () => {
-						activeMode = mode.id
-						setSelected(mode.id)
-						persistMode?.(mode.id)
+				Text,
+				{ style: { color: '#b5bac1', fontSize: 10, marginRight: 2 } },
+				'Intensity',
+			),
+			...INTENSITIES.map(intensity =>
+				option(
+					intensity.id,
+					intensity.label,
+					selectedIntensity === intensity.id,
+					() => {
+						activeIntensity = intensity.id
+						setSelectedIntensity(intensity.id)
+						persistSettings?.({ intensity: intensity.id })
 					},
-					style: {
-						backgroundColor: selected === mode.id ? '#5865f2' : '#34363c',
-						borderRadius: 10,
-						paddingHorizontal: 8,
-						paddingVertical: 5,
-					},
-					accessibilityRole: 'button',
-					accessibilityLabel: `Use ${mode.label} style`,
-					accessibilityState: { selected: selected === mode.id },
-				},
-				createElement(
-					Text,
-					{
-						style: {
-							color: '#ffffff',
-							fontSize: 11,
-							fontWeight: selected === mode.id ? '700' : '500',
-						},
-					},
-					mode.shortLabel,
 				),
 			),
 		),
@@ -133,15 +179,21 @@ const withMemoizedNamedExoticComponent = createFilterGenerator(
 export default plugin<{ jsonStorage: Settings }>({
 	jsonStorage: {
 		load: true,
-		default: { mode: 'drawing-room' },
+		default: { mode: 'drawing-room', intensity: 'balanced' },
 	},
 
 	start({ cleanup, jsonStorage }) {
 		const storedMode = jsonStorage.cache?.mode
+		const storedIntensity = jsonStorage.cache?.intensity
 		activeMode = MODES.some(mode => mode.id === storedMode)
 			? storedMode!
 			: 'drawing-room'
-		persistMode = mode => jsonStorage.set({ mode })
+		activeIntensity = INTENSITIES.some(
+			intensity => intensity.id === storedIntensity,
+		)
+			? storedIntensity!
+			: 'balanced'
+		persistSettings = settings => jsonStorage.set(settings)
 
 		// Intercept the actual outgoing message action. Only the content field
 		// changes; embeds, attachments, and other message metadata are retained.
@@ -157,7 +209,7 @@ export default plugin<{ jsonStorage: Settings }>({
 						) {
 							args[1] = {
 								...message,
-								content: transformText(message.content, activeMode),
+								content: transformText(message.content, activeMode, activeIntensity),
 							}
 						}
 						return args
@@ -180,6 +232,6 @@ export default plugin<{ jsonStorage: Settings }>({
 	},
 
 	stop() {
-		persistMode = undefined
+		persistSettings = undefined
 	},
 })
