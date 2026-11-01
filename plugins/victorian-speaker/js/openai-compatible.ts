@@ -3,8 +3,8 @@ import { buildRewritePrompt, type RewriteProvider, type RewriteRequest } from '.
 export interface OpenAICompatibleOptions {
   baseUrl: string
   model: string
-  /** Resolve credentials at request time; never persist them in plugin JSON storage. */
-  getAccessToken: () => string | undefined | Promise<string | undefined>
+  /** Resolve an API key at request time; never pass an OAuth account token to a user-configurable endpoint. */
+  getApiKey: () => string | undefined | Promise<string | undefined>
   fetchImpl?: typeof fetch
   timeoutMs?: number
 }
@@ -30,8 +30,8 @@ export function createOpenAICompatibleProvider(
     },
 
     async rewrite(request: RewriteRequest): Promise<string> {
-      const token = await options.getAccessToken()
-      if (!token) throw new Error('No cloud AI authorization is available.')
+      const token = await options.getApiKey()
+      if (!token) throw new Error('No cloud AI API key is configured.')
 
       let baseUrl = options.baseUrl.trim()
       while (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1)
