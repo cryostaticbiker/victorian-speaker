@@ -244,7 +244,7 @@ function rewritePlainText(
   let replacements = REPLACEMENTS[mode].map(([from, to]) => ({ from, to }))
 
   if (intensity === "subtle") {
-    replacements = replacements.filter(({ from }) => /\\s/.test(from))
+    replacements = replacements.filter(({ from }) => /\s/.test(from))
   } else if (intensity === "florid") {
     replacements = [
       ...replacements,
