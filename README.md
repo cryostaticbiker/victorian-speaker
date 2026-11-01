@@ -8,7 +8,13 @@ A Valenced plugin that rewrites outgoing Discord messages into playful Victorian
 - **Drawing Room** — moderate formality, such as changing “hello” to “I bid you good day”.
 - **Royal Decree** — deliberately extravagant, such as changing “please” to “I beseech thee”.
 
-Choose the active style using the three compact buttons added to the chat composer action row. The selected style is saved locally.
+Choose the active style and translation intensity using the compact controls added to the chat composer action row. Both preferences are saved locally.
+
+## Translation intensity
+
+- **Subtle** — rewrites complete phrases while leaving individual words and greetings alone.
+- **Balanced** — uses the full existing phrase and vocabulary dictionary. This is the default.
+- **Florid** — adds stronger, style-specific vocabulary substitutions for a more exaggerated result.
 
 ## Behaviour
 
