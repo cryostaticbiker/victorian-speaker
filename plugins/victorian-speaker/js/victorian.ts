@@ -225,7 +225,7 @@ function rewritePlainText(text: string, mode: VictorianMode): string {
   const expression = new RegExp(`\\b(${alternatives})\\b`, "gi")
 
   return text.replace(expression, match => {
-    const replacement = lookup.get(match.toLowerCase())
+    const replacement = lookup.get(match.replace(/\\s+/g, " ").toLowerCase())
     return replacement ? matchCase(match, replacement) : match
   })
 }
