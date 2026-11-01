@@ -33,7 +33,7 @@ export function createOpenAICompatibleProvider(
       const token = await options.getAccessToken()
       if (!token) throw new Error('No cloud AI authorization is available.')
 
-      const baseUrl = options.baseUrl.replace(/\\/+$/, '')
+      let baseUrl = options.baseUrl.trim()\n      while (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1)
       const endpoint = baseUrl.endsWith('/chat/completions')
         ? baseUrl
         : baseUrl + '/chat/completions'
