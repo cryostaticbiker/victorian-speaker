@@ -1,4 +1,5 @@
 export type VictorianMode = "tea" | "drawing-room" | "royal"
+export type VictorianIntensity = "subtle" | "balanced" | "florid"
 
 type Replacement = readonly [phrase: string, replacement: string]
 
@@ -197,6 +198,29 @@ const REPLACEMENTS: Record<VictorianMode, Replacement[]> = {
   ],
 }
 
+const FLORID_REPLACEMENTS: Record<VictorianMode, Replacement[]> = {
+  tea: [
+    ["yes", "indeed"],
+    ["no", "not at all"],
+    ["very", "exceedingly"],
+    ["really", "truly"],
+  ],
+  "drawing-room": [
+    ["yes", "indeed, most certainly"],
+    ["no", "I must respectfully disagree"],
+    ["very", "exceedingly"],
+    ["really", "in the utmost sincerity"],
+  ],
+  royal: [
+    ["yes", "aye, by royal assent"],
+    ["no", "nay"],
+    ["your", "thy"],
+    ["you", "thou"],
+    ["very", "most assuredly"],
+    ["really", "in truth, by the crown"],
+  ],
+}
+
 function matchCase(source: string, replacement: string): string {
   if (source === source.toUpperCase()) return replacement.toUpperCase()
 
@@ -212,10 +236,23 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
-function rewritePlainText(text: string, mode: VictorianMode): string {
-  const replacements = REPLACEMENTS[mode]
-    .map(([from, to]) => ({ from, to }))
-    .sort((a, b) => b.from.length - a.from.length)
+function rewritePlainText(
+  text: string,
+  mode: VictorianMode,
+  intensity: VictorianIntensity,
+): string {
+  let replacements = REPLACEMENTS[mode].map(([from, to]) => ({ from, to }))
+
+  if (intensity === "subtle") {
+    replacements = replacements.filter(({ from }) => /\\s/.test(from))
+  } else if (intensity === "florid") {
+    replacements = [
+      ...replacements,
+      ...FLORID_REPLACEMENTS[mode].map(([from, to]) => ({ from, to })),
+    ]
+  }
+
+  replacements.sort((a, b) => b.from.length - a.from.length)
 
   const alternatives = replacements
     .map(({ from }) => escapeRegExp(from).replace(/\s+/g, "\\s+"))
@@ -234,7 +271,11 @@ function rewritePlainText(text: string, mode: VictorianMode): string {
  * Rewrites prose locally. URLs, inline code, and fenced code blocks are left alone.
  * This is intentionally rule-based and never sends message text to an external service.
  */
-export function transformText(text: string, mode: VictorianMode): string {
+export function transformText(
+  text: string,
+  mode: VictorianMode,
+  intensity: VictorianIntensity = "balanced",
+): string {
   const protectedParts = /(```[\s\S]*?```|`[^\n`]*`|https?:\/\/[^\s<>]+)/g
 
   return text
@@ -242,7 +283,7 @@ export function transformText(text: string, mode: VictorianMode): string {
     .map(part => {
       if (!part) return part
       if (part.startsWith("`") || /^https?:\/\//i.test(part)) return part
-      return rewritePlainText(part, mode)
+      return rewritePlainText(part, mode, intensity)
     })
     .join("")
 }
