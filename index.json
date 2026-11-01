@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "name": "Victorian Speaker",
+  "description": "A playful Victorian English rewriter for Valenced.",
+  "plugins": {
+    "cryostaticbiker.victorian-speaker": {
+      "name": "Victorian Speaker",
+      "description": "Rewrites outgoing messages in one of three Victorian English styles.",
+      "author": "cryostaticbiker (https://github.com/cryostaticbiker \"GitHub\")",
+      "channels": {
+        "latest": "0.4.0"
+      },
+      "versions": {
+        "0.4.0": {
+          "url": "https://cryostaticbiker.github.io/victorian-speaker/pool/cryostaticbiker.victorian-speaker@0.4.0.zip",
+          "sha256": "24563e1fc6f9bc8112f1b1043c8dde92a6b44c9dfd123c159a093c2dc32a741a",
+          "size": 4166,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    }
+  }
+}
