@@ -198,7 +198,7 @@ type WithMemoizedNamedExoticComponent = FilterGenerator<
 const withMemoizedNamedExoticComponent = createFilterGenerator(
 	([name], _, exports) =>
 		exports?.type?.length === 1 && exports.type.displayName === name,
-	([name]) => \`memoizedNamedExoticComponent(\${name})\`,
+	([name]) => 'memoizedNamedExoticComponent(' + name + ')',
 ) as WithMemoizedNamedExoticComponent
 
 export default plugin<{ jsonStorage: Settings }>({
