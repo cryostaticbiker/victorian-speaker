@@ -6,6 +6,7 @@ export interface OpenAICompatibleOptions {
   /** Resolve credentials at request time; never persist them in plugin JSON storage. */
   getAccessToken: () => string | undefined | Promise<string | undefined>
   fetchImpl?: typeof fetch
+  timeoutMs?: number
 }
 
 interface ChatCompletionResponse {
@@ -37,14 +38,23 @@ export function createOpenAICompatibleProvider(
         ? baseUrl
         : baseUrl + '/chat/completions'
 
-      const response = await fetcher(endpoint, {
-        method: 'POST',
+      const controller = new AbortController()
+      const timeout = setTimeout(
+        () => controller.abort(),
+        options.timeoutMs ?? 15000,
+      )
+
+      let response: Response
+      try {
+        response = await fetcher(endpoint, {
+          method: 'POST',
         headers: {
           Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: options.model,
+          signal: controller.signal,
+          body: JSON.stringify({
+            model: options.model,
           temperature: 0.4,
           messages: [
             {
@@ -54,8 +64,16 @@ export function createOpenAICompatibleProvider(
             },
             { role: 'user', content: buildRewritePrompt(request) },
           ],
-        }),
-      })
+          }),
+        })
+      } catch (error) {
+        if (controller.signal.aborted) {
+          throw new Error('Cloud AI request timed out.')
+        }
+        throw error
+      } finally {
+        clearTimeout(timeout)
+      }
 
       if (!response.ok) {
         const detail = await response.text().catch(() => '')
