@@ -1,9 +1,10 @@
+import { ActionSheetActionCreators } from '@valenced/discord/actions'
 import { getModules } from '@valenced/modules/finders'
 import {
 	createFilterGenerator,
 	withProps,
 } from '@valenced/modules/finders/filters'
-import { after, before } from '@valenced/patcher'
+import { after } from '@valenced/patcher'
 import { cloneElement, createElement, isValidElement, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import type {
@@ -14,7 +15,6 @@ import type {
 import type {
 	FC,
 	MemoExoticComponent,
-	ReactElement,
 	ReactNode,
 } from 'react'
 import {
@@ -26,15 +26,6 @@ import {
 interface Settings {
 	mode: VictorianMode
 	intensity: VictorianIntensity
-}
-
-interface MessageActions {
-	sendMessage(
-		channelId: string,
-		message: { content?: string },
-		clearDraft: boolean,
-		options?: Record<string, unknown>,
-	): unknown
 }
 
 const MODES: Array<{ id: VictorianMode; label: string; shortLabel: string }> = [
@@ -49,9 +40,23 @@ const INTENSITIES: Array<{ id: VictorianIntensity; label: string }> = [
 	{ id: 'florid', label: 'Florid' },
 ]
 
+const REWRITE_SHEET_KEY = 'victorian-speaker-rewrite-sheet'
+
 let activeMode: VictorianMode = 'drawing-room'
 let activeIntensity: VictorianIntensity = 'balanced'
 let persistSettings: ((settings: Partial<Settings>) => void) | undefined
+
+function openRewriteSheet() {
+	ActionSheetActionCreators.openLazy(
+		import('./rewrite-sheet'),
+		REWRITE_SHEET_KEY,
+		{
+			sheetKey: REWRITE_SHEET_KEY,
+			mode: activeMode,
+			intensity: activeIntensity,
+		},
+	)
+}
 
 function ModePicker() {
 	const [selectedMode, setSelectedMode] = useState<VictorianMode>(activeMode)
@@ -136,6 +141,26 @@ function ModePicker() {
 				),
 			),
 		),
+		createElement(
+			Pressable,
+			{
+				onPress: openRewriteSheet,
+				style: {
+					backgroundColor: '#5865f2',
+					borderRadius: 10,
+					paddingHorizontal: 12,
+					paddingVertical: 7,
+					marginTop: 2,
+				},
+				accessibilityRole: 'button',
+				accessibilityLabel: 'Open Victorian Speaker rewrite',
+			},
+			createElement(
+				Text,
+				{ style: { color: '#ffffff', fontSize: 12, fontWeight: '700' } },
+				'Rewrite text',
+			),
+		),
 	)
 }
 
@@ -173,7 +198,7 @@ type WithMemoizedNamedExoticComponent = FilterGenerator<
 const withMemoizedNamedExoticComponent = createFilterGenerator(
 	([name], _, exports) =>
 		exports?.type?.length === 1 && exports.type.displayName === name,
-	([name]) => `memoizedNamedExoticComponent(${name})`,
+	([name]) => \`memoizedNamedExoticComponent(\${name})\`,
 ) as WithMemoizedNamedExoticComponent
 
 export default plugin<{ jsonStorage: Settings }>({
@@ -195,34 +220,7 @@ export default plugin<{ jsonStorage: Settings }>({
 			: 'balanced'
 		persistSettings = settings => jsonStorage.set(settings)
 
-		// Intercept the actual outgoing message action. Only the content field
-		// changes; embeds, attachments, and other message metadata are retained.
-		cleanup(
-			getModules(withProps<MessageActions>('sendMessage'), messages => {
-				cleanup(
-					before(messages, 'sendMessage', args => {
-						const message = args[1]
-						if (
-							message &&
-							typeof message.content === 'string' &&
-							message.content.length > 0
-						) {
-							args[1] = {
-								...message,
-								content: transformText(
-									message.content,
-									activeMode,
-									activeIntensity,
-								),
-							}
-						}
-						return args
-					}),
-				)
-			}),
-		)
-
-		// Add the mode buttons to the existing chat composer action row.
+		// Add the style controls and manual rewrite action to the composer row.
 		cleanup(
 			getModules(
 				withMemoizedNamedExoticComponent('ChatInputRightActions'),
