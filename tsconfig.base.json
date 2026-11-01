@@ -9,6 +9,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "noEmit": true,
-    "types": ["@revenge-mod/types"]
+    "types": ["@valenced/types"]
   }
 }
