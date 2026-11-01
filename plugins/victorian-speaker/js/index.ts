@@ -209,7 +209,11 @@ export default plugin<{ jsonStorage: Settings }>({
 						) {
 							args[1] = {
 								...message,
-								content: transformText(message.content, activeMode, activeIntensity),
+								content: transformText(
+									message.content,
+									activeMode,
+									activeIntensity,
+								),
 							}
 						}
 						return args
