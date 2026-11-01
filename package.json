@@ -7,6 +7,7 @@
     "build:dev": "valenced-plugin build --dev",
     "generate-index": "valenced-plugin generate-index",
     "serve": "valenced-plugin serve",
+    "test": "bun test",
     "lint": "biome check"
   },
   "dependencies": {
