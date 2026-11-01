@@ -1,4 +1,4 @@
-name: Build Victorian Speaker
+name: Build Victorian Speaker for Valenced
 
 on:
   push:
