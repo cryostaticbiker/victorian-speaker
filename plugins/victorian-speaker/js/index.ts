@@ -1,16 +1,16 @@
-import { getModules } from '@revenge-mod/modules/finders'
+import { getModules } from '@valenced/modules/finders'
 import {
 	createFilterGenerator,
 	withProps,
-} from '@revenge-mod/modules/finders/filters'
-import { after, before } from '@revenge-mod/patcher'
+} from '@valenced/modules/finders/filters'
+import { after, before } from '@valenced/patcher'
 import { cloneElement, createElement, isValidElement, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import type {
 	Filter,
 	FilterGenerator,
 	FilterScopes,
-} from '@revenge-mod/modules/finders/filters'
+} from '@valenced/modules/finders/filters'
 import type {
 	FC,
 	MemoExoticComponent,
