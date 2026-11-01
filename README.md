@@ -1,6 +1,6 @@
 # Victorian Speaker
 
-A Valenced plugin that rewrites outgoing Discord messages into playful Victorian-style English.
+A Valenced plugin that rewrites text into playful Victorian-style English.
 
 ## Three styles
 
@@ -16,15 +16,22 @@ Choose the active style and translation intensity using the compact controls add
 - **Balanced** — uses the full existing phrase and vocabulary dictionary. This is the default.
 - **Florid** — adds stronger, style-specific vocabulary substitutions for a more exaggerated result.
 
-## Behaviour
+## Rewrite text
 
-- Rewrites message text immediately before Discord sends it.
+Tap **Rewrite text** in the composer action row to open the Victorian Speaker sheet. Enter or paste text, preview the rewritten result, and copy it when you're happy with it.
+
+The rewrite sheet works independently of the Discord composer draft. It does not intercept message sending, modify the current draft, or send anything automatically.
+
+The current rewrite action uses the local phrase dictionary. The provider-independent AI engine foundation is included in the development branch, but cloud account sign-in and a local inference runtime are not connected yet. Until those are implemented, the UI clearly identifies the result as an offline dictionary rewrite.
+
+## Behaviour and privacy
+
 - Leaves URLs, inline code, and fenced code blocks unchanged.
-- Preserves other message fields, including attachment metadata.
-- Does not edit the visible draft while typing.
-- Runs entirely on-device. No message text is sent to an external rewriting service.
+- Keeps the original message separate from the rewritten result.
+- Does not send message text to an external service in the current implementation.
+- Does not automatically send rewritten text.
 
-The first version uses a local phrase dictionary, not a language model. This keeps it private and fast, but it will not perfectly rewrite arbitrary sentences.
+The local phrase dictionary is private and fast, but it will not perfectly rewrite arbitrary sentences.
 
 ## Build
 
@@ -66,16 +73,14 @@ Manual ZIP installs do not receive automatic updates. Use the repository method 
 
 ## Compatibility and testing
 
-The plugin targets the Valenced API. It intercepts the outgoing `sendMessage` action and patches the chat composer action row to display the three style buttons.
+The plugin targets the Valenced API and patches the chat composer action row to display its style controls and rewrite action.
 
-A successful CI build confirms that the code bundles and packages. It does not prove that Discord's internal composer component is identical on every client version. Verify that the three mode buttons appear and that a test message is transformed before relying on it.
+A successful CI build confirms that the code bundles and packages. It does not prove that Discord's internal composer component is identical on every client version. Verify that the controls appear and test the rewrite sheet on your installed Valenced version.
 
 ## Ideas for later versions
 
-- Preview the transformed message before sending.
-- Add a custom phrase dictionary and user-defined substitutions.
+- Connect cloud AI providers through supported account sign-in flows.
+- Add an optional on-device language model with clear storage, memory, and battery disclosures.
+- Add custom phrase dictionaries and user-defined substitutions.
 - Add per-server or per-channel default styles.
-- Add a one-tap enable/disable control.
-- Add a “rewrite this draft” button that updates the composer text.
-- Preserve mentions and markdown with dedicated parsing.
 - Add Regency, Shakespearean, or legalistic styles.
