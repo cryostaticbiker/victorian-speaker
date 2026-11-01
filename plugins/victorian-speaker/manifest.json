@@ -4,7 +4,7 @@
   "name": "Victorian Speaker",
   "description": "Rewrites outgoing messages in one of three Victorian English styles.",
   "author": "cryostaticbiker (https://github.com/cryostaticbiker \"GitHub\")",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "dependencies": {
     "valenced.api": {
       "version": ">=1 <2"
