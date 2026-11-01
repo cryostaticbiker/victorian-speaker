@@ -10,7 +10,7 @@ describe('OpenAI-compatible provider', () => {
     const provider = createOpenAICompatibleProvider({
       baseUrl: 'https://example.test/v1/',
       model: 'test-model',
-      getAccessToken: () => 'temporary-access-token',
+      getApiKey: () => 'temporary-access-token',
       fetchImpl: async (input, init) => {
         requestedUrl = String(input)
         authorization = new Headers(init?.headers).get('Authorization') ?? ''
@@ -41,7 +41,7 @@ describe('OpenAI-compatible provider', () => {
     const provider = createOpenAICompatibleProvider({
       baseUrl: 'https://example.test/v1',
       model: 'test-model',
-      getAccessToken: () => undefined,
+      getApiKey: () => undefined,
       fetchImpl: async () => {
         called = true
         return new Response('{}')
@@ -54,7 +54,7 @@ describe('OpenAI-compatible provider', () => {
         mode: 'tea',
         intensity: 'subtle',
       }),
-    ).rejects.toThrow('No cloud AI authorization')
+    ).rejects.toThrow('No cloud AI API key')
     expect(called).toBe(false)
   })
 
@@ -62,7 +62,7 @@ describe('OpenAI-compatible provider', () => {
     const provider = createOpenAICompatibleProvider({
       baseUrl: 'https://example.test/v1',
       model: 'test-model',
-      getAccessToken: () => 'token',
+      getApiKey: () => 'token',
       fetchImpl: async () =>
         new Response('x'.repeat(1000), { status: 429 }),
     })
